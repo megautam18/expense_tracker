@@ -1,11 +1,32 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Constants from 'expo-constants';
 
-const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL!;
-const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY!;
+// Prefer process.env (when built), then expo config extra, else empty string
+const SUPABASE_URL =
+  process.env.EXPO_PUBLIC_SUPABASE_URL ??
+  (Constants?.expoConfig?.extra?.SUPABASE_URL as string | undefined) ??
+  '';
+const SUPABASE_ANON_KEY =
+  process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY ??
+  (Constants?.expoConfig?.extra?.SUPABASE_ANON_KEY as string | undefined) ??
+  '';
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+// Debug / fail early so we get a clear message instead of "supabaseUrl is required"
+console.log('Supabase config present:', { hasUrl: !!SUPABASE_URL, hasKey: !!SUPABASE_ANON_KEY });
+
+if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+  console.error('Missing Supabase config', { SUPABASE_URL, SUPABASE_ANON_KEY });
+  throw new Error(
+    'SUPABASE_URL and SUPABASE_ANON_KEY are required. Set EXPO_PUBLIC_SUPABASE_URL / EXPO_PUBLIC_SUPABASE_ANON_KEY in your .env or expo extra.'
+  );
+}
+
+// Pass AsyncStorage to supabase auth for React Native persistence
+export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+  auth: { storage: AsyncStorage },
+});
 
 interface AuthContextType {
   session: any;

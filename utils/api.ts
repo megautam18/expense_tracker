@@ -6,72 +6,51 @@ export async function addExpense(expense: {
   category: string;
   date: string;
 }) {
+  // include the authenticated user's id so RLS policies allow the insert
   const session = await supabase.auth.getSession();
-  const token = session.data.session?.access_token;
+  const userId = session.data.session?.user?.id;
 
-  if (!token) {
-    throw new Error('Not authenticated');
-  }
+  if (!userId) throw new Error('Not authenticated');
 
-  const response = await fetch('/expenses', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify(expense),
-  });
+  const { data, error } = await supabase
+    .from('expenses')
+    .insert([
+      {
+        amount: expense.amount,
+        description: expense.description,
+        category: expense.category,
+        date: expense.date,
+        user_id: userId,
+      },
+    ])
+    .select();
 
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.error || 'Failed to add expense');
-  }
-
-  return response.json();
+  if (error) throw error;
+  return data;
 }
 
 export async function getAllExpenses() {
-  const session = await supabase.auth.getSession();
-  const token = session.data.session?.access_token;
+  const { data, error } = await supabase
+    .from('expenses')
+    .select('*')
+    .order('date', { ascending: false });
 
-  if (!token) {
-    throw new Error('Not authenticated');
-  }
-
-  const response = await fetch('/expenses', {
-    method: 'GET',
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.error || 'Failed to fetch expenses');
-  }
-
-  return response.json();
+  if (error) throw error;
+  return data;
 }
 
 export async function getMonthlyExpenses() {
-  const session = await supabase.auth.getSession();
-  const token = session.data.session?.access_token;
+  const now = new Date();
+  const start = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+  const end = new Date(now.getFullYear(), now.getMonth() + 1, 1).toISOString();
 
-  if (!token) {
-    throw new Error('Not authenticated');
-  }
+  const { data, error } = await supabase
+    .from('expenses')
+    .select('*')
+    .gte('date', start)
+    .lt('date', end)
+    .order('date', { ascending: false });
 
-  const response = await fetch('/expenses?monthly=true', {
-    method: 'GET',
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.error || 'Failed to fetch monthly expenses');
-  }
-
-  return response.json();
+  if (error) throw error;
+  return data;
 }
