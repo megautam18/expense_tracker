@@ -12,7 +12,7 @@ import { useTheme } from '../context/ThemeContext';
 
 interface ExpenseFormProps {
   onSubmit: (expense: {
-    amount: string;
+    amount: number;
     description: string;
     category: string;
     date: string;
@@ -53,7 +53,7 @@ export default function ExpenseForm({ onSubmit }: ExpenseFormProps) {
 
     try {
       await onSubmit({
-        amount,
+        amount: parseFloat(amount),
         description,
         category,
         date: new Date().toISOString(),

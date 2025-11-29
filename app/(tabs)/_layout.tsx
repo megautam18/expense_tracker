@@ -1,10 +1,20 @@
 import { Tabs } from 'expo-router';
-import { PlusCircle, PieChart, List, Moon, Sun } from 'lucide-react-native';
+import { PlusCircle, PieChart, List, Moon, Sun, LogOut } from 'lucide-react-native';
 import { TouchableOpacity, View, StyleSheet } from 'react-native';
 import { useTheme } from '../../context/ThemeContext';
+import { useAuth } from '../../context/AuthContext';
 
 export default function TabLayout() {
   const { colors, toggleTheme, theme } = useTheme();
+  const { signOut } = useAuth();
+
+  const handleLogout = async () => {
+    try {
+      await signOut();
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
+  };
 
   return (
     <Tabs
@@ -19,6 +29,9 @@ export default function TabLayout() {
           backgroundColor: colors.surface,
         },
         headerTintColor: colors.text,
+        headerTitleStyle: {
+          color: colors.text,
+        },
       }}
     >
       <Tabs.Screen
@@ -27,13 +40,18 @@ export default function TabLayout() {
           title: 'Add Expense',
           tabBarIcon: ({ size, color }) => <PlusCircle size={size} color={color} />,
           headerRight: () => (
-            <TouchableOpacity onPress={toggleTheme} style={styles.headerButton}>
-              {theme === 'light' ? (
-                <Moon size={24} color={colors.text} />
-              ) : (
-                <Sun size={24} color={colors.text} />
-              )}
-            </TouchableOpacity>
+            <View style={styles.headerContainer}>
+              <TouchableOpacity onPress={toggleTheme} style={styles.headerButton}>
+                {theme === 'light' ? (
+                  <Moon size={24} color={colors.text} />
+                ) : (
+                  <Sun size={24} color={colors.text} />
+                )}
+              </TouchableOpacity>
+              <TouchableOpacity onPress={handleLogout} style={styles.headerButton}>
+                <LogOut size={24} color={colors.error} />
+              </TouchableOpacity>
+            </View>
           ),
         }}
       />
@@ -43,13 +61,18 @@ export default function TabLayout() {
           title: 'Monthly Overview',
           tabBarIcon: ({ size, color }) => <PieChart size={size} color={color} />,
           headerRight: () => (
-            <TouchableOpacity onPress={toggleTheme} style={styles.headerButton}>
-              {theme === 'light' ? (
-                <Moon size={24} color={colors.text} />
-              ) : (
-                <Sun size={24} color={colors.text} />
-              )}
-            </TouchableOpacity>
+            <View style={styles.headerContainer}>
+              <TouchableOpacity onPress={toggleTheme} style={styles.headerButton}>
+                {theme === 'light' ? (
+                  <Moon size={24} color={colors.text} />
+                ) : (
+                  <Sun size={24} color={colors.text} />
+                )}
+              </TouchableOpacity>
+              <TouchableOpacity onPress={handleLogout} style={styles.headerButton}>
+                <LogOut size={24} color={colors.error} />
+              </TouchableOpacity>
+            </View>
           ),
         }}
       />
@@ -59,13 +82,18 @@ export default function TabLayout() {
           title: 'All Expenses',
           tabBarIcon: ({ size, color }) => <List size={size} color={color} />,
           headerRight: () => (
-            <TouchableOpacity onPress={toggleTheme} style={styles.headerButton}>
-              {theme === 'light' ? (
-                <Moon size={24} color={colors.text} />
-              ) : (
-                <Sun size={24} color={colors.text} />
-              )}
-            </TouchableOpacity>
+            <View style={styles.headerContainer}>
+              <TouchableOpacity onPress={toggleTheme} style={styles.headerButton}>
+                {theme === 'light' ? (
+                  <Moon size={24} color={colors.text} />
+                ) : (
+                  <Sun size={24} color={colors.text} />
+                )}
+              </TouchableOpacity>
+              <TouchableOpacity onPress={handleLogout} style={styles.headerButton}>
+                <LogOut size={24} color={colors.error} />
+              </TouchableOpacity>
+            </View>
           ),
         }}
       />
@@ -74,7 +102,13 @@ export default function TabLayout() {
 }
 
 const styles = StyleSheet.create({
-  headerButton: {
+  headerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
     marginRight: 16,
+    gap: 12,
+  },
+  headerButton: {
+    padding: 8,
   },
 });

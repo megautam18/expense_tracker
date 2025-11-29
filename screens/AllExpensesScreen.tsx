@@ -102,7 +102,7 @@ export default function AllExpensesScreen() {
     <View style={styles.container}>
       <FlatList
         data={expenses}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => item.id || Math.random().toString()}
         renderItem={({ item }) => <ExpenseItem expense={item} />}
         contentContainerStyle={
           expenses.length === 0 ? styles.emptyContainer : styles.listContent

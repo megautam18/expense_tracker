@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 
 export interface Expense {
-  id: string;
+  id?: string;
   amount: number;
   description: string;
   category: string;

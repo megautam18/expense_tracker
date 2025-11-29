@@ -10,7 +10,7 @@ export default function AddExpenseScreen() {
   const { triggerRefresh } = useExpenses();
 
   const handleSubmit = async (expense: {
-    amount: string;
+    amount: number;
     description: string;
     category: string;
     date: string;
